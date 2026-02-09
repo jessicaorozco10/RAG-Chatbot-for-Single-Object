@@ -1,12 +1,8 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
+import Link from "next/link";
 import Background from "../component/background";
 import Glass from "../component/glass";
 
 export default function Chat() {
-  const router = useRouter();
-
   return (
     <div className="relative w-screen h-screen">
       {/*background with panel*/}
@@ -19,19 +15,19 @@ export default function Chat() {
             chat
           </h1>
 
-          <button
-            onClick={() => router.push('/camera')}
-            className="w-full max-w-xs mb-3 px-6 py-3 text-xl bg-white/20 text-white rounded-lg font-medium hover:bg-white/30 transition backdrop-blur-sm border border-white/30"
+          <Link
+            href="/camera"
+            className="w-full max-w-xs mb-3 px-6 py-3 text-xl bg-white/20 text-white rounded-lg font-medium hover:bg-white/30 transition backdrop-blur-sm border border-white/30 text-center"
           >
             Go to Camera
-          </button>
+          </Link>
 
-          <button
-            onClick={() => router.push('/panel')}
-            className="w-full max-w-xs px-6 py-3 text-xl bg-white/20 text-white rounded-lg font-medium hover:bg-white/30 transition backdrop-blur-sm border border-white/30"
+          <Link
+            href="/panel"
+            className="w-full max-w-xs px-6 py-3 text-xl bg-white/20 text-white rounded-lg font-medium hover:bg-white/30 transition backdrop-blur-sm border border-white/30 text-center"
           >
             Go to Panel
-          </button>
+          </Link>
         </div>
       </Glass>
     </div>

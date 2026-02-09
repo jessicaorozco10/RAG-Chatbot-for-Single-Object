@@ -1,5 +1,3 @@
-'use client';
-
 import Image from "next/image";
 import React from "react";
 
@@ -17,7 +15,6 @@ const panels = [
 export default function Background() {
   return (
     <div className="fixed inset-0 w-screen h-screen overflow-hidden">
-
       {/*background*/}
       <Image
         src="/assets/background.png"
@@ -28,25 +25,27 @@ export default function Background() {
       />
 
       {/*panels grid*/}
-      <div 
+      <div
         className="absolute w-full px-2"
         style={{
-          top: '5%',
-          bottom: '5%',
+          top: "5%",
+          bottom: "5%",
           left: 0,
           right: 0,
-          display: 'flex',
-          alignItems: 'stretch',
-          justifyContent: 'center'
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <div 
-          className="grid grid-cols-2 w-full max-w-2xl"
+        <div
+          className="grid grid-cols-2 w-full"
           style={{
-            height: '100%',
-            gridTemplateRows: 'repeat(4, 1fr)',
-            rowGap: '4px', // vertical space
-            columnGap: '4px' // horizontal space
+            maxWidth: '600px', // limit max width on desktop
+            maxHeight: '100%',
+            gridTemplateRows: "repeat(4, 1fr)",
+            rowGap: "4px",
+            columnGap: "4px",
+            aspectRatio: '1 / 2', // maintain proportions
           }}
         >
           {panels.map((panel, idx) => (
@@ -55,7 +54,8 @@ export default function Background() {
                 src={panel}
                 alt={`Panel ${idx + 1}`}
                 fill
-                className="object-cover" // fill completely
+                className="object-contain"
+                sizes="(max-width: 768px) 50vw, 300px"
               />
             </div>
           ))}
