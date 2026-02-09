@@ -1,55 +1,39 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Background from "../component/background";
+import Glass from "../component/glass";
 
 export default function Chat() {
   const router = useRouter();
 
   return (
-    <div style={{ 
-      backgroundColor: 'white', 
-      minHeight: '100vh', 
-      display: 'flex', 
-      flexDirection: 'column',
-      justifyContent: 'center', 
-      alignItems: 'center',
-      gap: '20px'
-    }}>
-      <h1 style={{ fontSize: '48px', fontWeight: 'bold', marginBottom: '30px' }}>
-        chat
-      </h1>
-      
-      <button
-        onClick={() => router.push('/camera')}
-        style={{
-          padding: '15px 30px',
-          fontSize: '20px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontWeight: '500'
-        }}
-      >
-        Go to Camera
-      </button>
+    <div className="relative w-screen h-screen">
+      {/*background with panel*/}
+      <Background />
 
-      <button
-        onClick={() => router.push('/panel')}
-        style={{
-          padding: '15px 30px',
-          fontSize: '20px',
-          backgroundColor: '#28a745',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontWeight: '500'
-        }}
-      >
-        Go to Panel
-      </button>
+      {/*glass*/}
+      <Glass>
+        <div className="w-full h-full flex flex-col items-center justify-center p-8">
+          <h1 className="text-4xl font-bold text-white mb-8 text-center">
+            chat
+          </h1>
+
+          <button
+            onClick={() => router.push('/camera')}
+            className="w-full max-w-xs mb-3 px-6 py-3 text-xl bg-white/20 text-white rounded-lg font-medium hover:bg-white/30 transition backdrop-blur-sm border border-white/30"
+          >
+            Go to Camera
+          </button>
+
+          <button
+            onClick={() => router.push('/panel')}
+            className="w-full max-w-xs px-6 py-3 text-xl bg-white/20 text-white rounded-lg font-medium hover:bg-white/30 transition backdrop-blur-sm border border-white/30"
+          >
+            Go to Panel
+          </button>
+        </div>
+      </Glass>
     </div>
   );
 }
