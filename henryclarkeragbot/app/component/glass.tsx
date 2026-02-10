@@ -13,10 +13,10 @@ export default function Glass({ children }: GlassProps) {
       right: '20px',
       bottom: '20px',
       background: 'rgba(7, 11, 38, 0.4)',
-      backdropFilter: 'blur(4px)', // blur
+      backdropFilter: 'blur(10px)', // blur
       WebkitBackdropFilter: 'blur(10px)', // safari support
       borderRadius: '20px',
-      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 0 1px rgba(7, 11, 38, 0.4)', // make outline
+      boxShadow: '0 8px 32px 0 rgba(7, 11, 38, 0.4), 0 0 0 1px rgba(7, 11, 38, 1.0)', // make outline
       overflow: 'hidden',
       zIndex: 10,
     }}>
@@ -24,7 +24,7 @@ export default function Glass({ children }: GlassProps) {
         position: 'absolute',
         inset: '-2px',
         background: 'linear-gradient(45deg, rgba(7, 11, 38, 0.4), rgba(7, 11, 38, 0.4))', // make box look color
-        filter: 'blur(4px)',
+        filter: 'blur(10px)',
         borderRadius: '20px',
         zIndex: -1,
       }} />

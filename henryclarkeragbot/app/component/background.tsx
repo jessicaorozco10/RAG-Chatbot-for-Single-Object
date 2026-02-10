@@ -26,26 +26,21 @@ export default function Background() {
 
       {/*panels grid*/}
       <div
-        className="absolute w-full px-2"
+        className="absolute inset-0 w-full h-full"
         style={{
-          top: "5%",
-          bottom: "5%",
-          left: 0,
-          right: 0,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          padding: 0,
         }}
       >
         <div
-          className="grid grid-cols-2 w-full"
+          className="grid grid-cols-2 w-full h-full"
           style={{
-            maxWidth: '600px', // limit max width on desktop
-            maxHeight: '100%',
+            maxWidth: "100vw",
+            maxHeight: "100vh",
             gridTemplateRows: "repeat(4, 1fr)",
-            rowGap: "4px",
-            columnGap: "4px",
-            aspectRatio: '1 / 2', // maintain proportions
+            gap: "2px",
           }}
         >
           {panels.map((panel, idx) => (
@@ -55,7 +50,11 @@ export default function Background() {
                 alt={`Panel ${idx + 1}`}
                 fill
                 className="object-contain"
-                sizes="(max-width: 768px) 50vw, 300px"
+                sizes="50vw"
+                style={{ 
+                  padding: 0,
+                  margin: 0 
+                }}
               />
             </div>
           ))}
