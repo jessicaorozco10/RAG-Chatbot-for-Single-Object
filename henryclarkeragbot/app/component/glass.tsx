@@ -8,15 +8,15 @@ export default function Glass({ children }: GlassProps) {
   return (
     <div style={{
       position: 'absolute',
-      top: '20px',
-      left: '20px',
-      right: '20px',
-      bottom: '20px',
+      top: '10px',
+      left: '10px',
+      right: '10px',
+      bottom: '10px',
       background: 'rgba(7, 11, 38, 0.4)',
       backdropFilter: 'blur(10px)', // blur
       WebkitBackdropFilter: 'blur(10px)', // safari support
       borderRadius: '20px',
-      boxShadow: '0 8px 32px 0 rgba(7, 11, 38, 0.4), 0 0 0 1px rgba(7, 11, 38, 1.0)', // make outline
+      boxShadow: '0 8px 32px 0 rgba(7, 11, 38, 0.4), 0 0 0 1px rgba(7, 11, 38, 0.8)', // make outline
       overflow: 'hidden',
       zIndex: 10,
     }}>

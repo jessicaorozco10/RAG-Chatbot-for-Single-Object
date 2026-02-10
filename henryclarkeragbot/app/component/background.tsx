@@ -44,17 +44,13 @@ export default function Background() {
           }}
         >
           {panels.map((panel, idx) => (
-            <div key={idx} className="relative w-full h-full">
+            <div key={idx} className="relative w-full h-full overflow-hidden">
               <Image
-                src={panel}
-                alt={`Panel ${idx + 1}`}
-                fill
-                className="object-contain"
-                sizes="50vw"
-                style={{ 
-                  padding: 0,
-                  margin: 0 
-                }}
+              src={panel}
+              alt={`Panel ${idx + 1}`}
+              fill
+              className="object-cover"
+              sizes="50vw"
               />
             </div>
           ))}

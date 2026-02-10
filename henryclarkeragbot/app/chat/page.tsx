@@ -1,33 +1,78 @@
-import Link from "next/link";
+import { CiSettings } from "react-icons/ci";
+import { FaUniversalAccess } from "react-icons/fa";
+import { CiCamera } from "react-icons/ci";
+import { CiCompass1 } from "react-icons/ci";
+import Button from "../component/button";
 import Background from "../component/background";
 import Glass from "../component/glass";
+import Image from "next/image";
 
 export default function Chat() {
   return (
     <div className="relative w-screen h-screen">
-      {/*background with panel*/}
       <Background />
 
-      {/*glass*/}
       <Glass>
-        <div className="w-full h-full flex flex-col items-center justify-center p-8">
-          <h1 className="text-4xl font-bold text-white mb-8 text-center">
-            chat
-          </h1>
+        {/*fiu image*/}
+        <Image
+          src="/assets/the-wolfsonian.png"
+          alt="The Wolfsonian"
+          width={160}
+          height={80}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            left: '20px',
+            zIndex: 20,
+          }}
+        />
 
-          <Link
+        {/*text under image*/}
+        <span
+          style={{
+            position: 'absolute',
+            top: '60px',
+            left: '40px',
+            color: 'white',
+            fontSize: '10px',
+            fontWeight: 500,
+            zIndex: 20,
+          }}
+        >
+          Harry Clarke Art Assistant
+        </span>
+
+        <div className="w-full h-full">
+
+          {/*setting button*/}
+          <Button
+            href="/settings"
+            icon={<CiSettings size={32}/>}
+            style={{ position: 'absolute', top: '20px', left: '280px' }}
+          />
+
+          {/*accesability button*/}
+          <Button
+            href="/accessibility"
+            icon={<FaUniversalAccess size={32}/>}
+            style={{ position: 'absolute', top: '100px', left: '280px' }}
+          />
+
+          {/*camera button*/}
+          <Button
             href="/camera"
-            className="w-full max-w-xs mb-3 px-6 py-3 text-xl bg-white/20 text-white rounded-lg font-medium hover:bg-white/30 transition backdrop-blur-sm border border-white/30 text-center"
-          >
-            Go to Camera
-          </Link>
+            icon={<CiCamera size={32}/>}
+            label="Camera Mode"
+            style={{ position: 'absolute', top: '100px', left: '-8px' }}
+          />
 
-          <Link
+          {/*panel button*/}
+          <Button
             href="/panel"
-            className="w-full max-w-xs px-6 py-3 text-xl bg-white/20 text-white rounded-lg font-medium hover:bg-white/30 transition backdrop-blur-sm border border-white/30 text-center"
-          >
-            Go to Panel
-          </Link>
+            icon={<CiCompass1 size={32}/>}
+            label="Panel Mode"
+            style={{ position: 'absolute', top: '180px', left: '-8px' }}
+          />
         </div>
       </Glass>
     </div>
