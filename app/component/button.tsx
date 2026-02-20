@@ -7,12 +7,14 @@ interface ButtonProps {
   size?: number; // use for button size
   label?: string; // use for label
   style?: React.CSSProperties; // use for position 
+  className?: string;
 }
 
-export default function Button({ icon, href, size = 48, label, style }: ButtonProps) {
+export default function Button({ icon, href, size = 48, label, style, className }: ButtonProps) {
   return (
     <Link
       href={href}
+      className={className}
       style={{
         position: 'relative',
         display: 'flex',

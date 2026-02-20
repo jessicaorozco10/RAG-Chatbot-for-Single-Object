@@ -6,6 +6,7 @@ import Button from "../component/button";
 import Background from "../component/background";
 import Glass from "../component/glass";
 import Image from "next/image";
+import styles from "./page.module.css";
 
 export default function Chat() {
   return (
@@ -13,66 +14,46 @@ export default function Chat() {
       <Background />
 
       <Glass>
-        {/*fiu image*/}
-        <Image
-          src="/assets/the-wolfsonian.png"
-          alt="The Wolfsonian"
-          width={160}
-          height={80}
-          style={{
-            position: 'absolute',
-            top: '20px',
-            left: '20px',
-            zIndex: 20,
-          }}
-        />
+        <div className={styles.shell}>
+          <div className={styles.brandWrap}>
+            <Image
+              src="/assets/the-wolfsonian.png"
+              alt="The Wolfsonian"
+              width={190}
+              height={90}
+              className={styles.logo}
+              priority
+            />
+            <span className={styles.brandLabel}>Harry Clarke Art Assistant</span>
+          </div>
 
-        {/*text under image*/}
-        <span
-          style={{
-            position: 'absolute',
-            top: '60px',
-            left: '40px',
-            color: 'white',
-            fontSize: '10px',
-            fontWeight: 500,
-            zIndex: 20,
-          }}
-        >
-          Harry Clarke Art Assistant
-        </span>
+          <div className={styles.utilityButtons}>
+            <Button
+              href="/settings"
+              icon={<CiSettings size={28} />}
+              className={styles.utilityButton}
+            />
+            <Button
+              href="/accessibility"
+              icon={<FaUniversalAccess size={28} />}
+              className={styles.utilityButton}
+            />
+          </div>
 
-        <div className="w-full h-full">
-
-          {/*setting button*/}
-          <Button
-            href="/settings"
-            icon={<CiSettings size={32}/>}
-            style={{ position: 'absolute', top: '20px', left: '280px' }}
-          />
-
-          {/*accesability button*/}
-          <Button
-            href="/accessibility"
-            icon={<FaUniversalAccess size={32}/>}
-            style={{ position: 'absolute', top: '100px', left: '280px' }}
-          />
-
-          {/*camera button*/}
-          <Button
-            href="/camera"
-            icon={<CiCamera size={32}/>}
-            label="Camera Mode"
-            style={{ position: 'absolute', top: '100px', left: '-8px' }}
-          />
-
-          {/*panel button*/}
-          <Button
-            href="/panel"
-            icon={<CiCompass1 size={32}/>}
-            label="Panel Mode"
-            style={{ position: 'absolute', top: '180px', left: '-8px' }}
-          />
+          <div className={styles.centerButtons}>
+            <Button
+              href="/camera"
+              icon={<CiCamera size={34} />}
+              label="Camera Mode"
+              className={styles.mainButton}
+            />
+            <Button
+              href="/panel"
+              icon={<CiCompass1 size={34} />}
+              label="Panel Mode"
+              className={styles.mainButton}
+            />
+          </div>
         </div>
       </Glass>
     </div>
