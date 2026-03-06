@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { FaMicrophone, FaStop } from "react-icons/fa";
 import { IoSend } from "react-icons/io5";
 // thing to check later
-// the position if it goes over the button if we make it bigger change z index
+// the position if it goes over the button if we make it be front change z index
 // have the transcript initialize the first letter
 // tried having the glass comonent take the whole screen but it messes up the input
 // the glass component make the input look good in android and i phone

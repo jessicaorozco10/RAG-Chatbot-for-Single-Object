@@ -45,39 +45,27 @@ export default function Chat() {
 
         <div className="w-full h-full">
 
-          {/*setting button*/}
-          <Button
-            href="/settings"
-            icon={<CiSettings size={32}/>}
-            style={{ position: 'absolute', top: '20px', right: '20px' }}
-          />
 
           {/*accesability button*/}
           <Button
             href="/accessibility"
             icon={<FaUniversalAccess size={32}/>}
-            style={{ position: 'absolute', top: '100px', right: '20px' }}
+            style={{ position: 'absolute', top: '20px', right: '20px' }}
           />
 
-          {/*camera button*/}
-          <Button
-            href="/camera"
-            icon={<CiCamera size={32}/>}
-            style={{ position: 'absolute', top: '100px', left: '22px' }}
-          />
 
           {/*panel button*/}
           <Button
             href="/panel"
             icon={<CiCompass1 size={32}/>}
-            style={{ position: 'absolute', top: '180px', left: '22px' }}
+            style={{ position: 'absolute', top: '100px', right: '20px' }}
           />
         </div>
-        {/* chat area*/}
+        {/* Chat area */}
           <div
             className="absolute inset-x-0 bottom-0 z-10"
             style={{
-              paddingTop: "120px",
+              paddingTop: "120px", // space below logo/text
               paddingLeft: "20px",
               paddingRight: "20px",
               paddingBottom: "20px",
