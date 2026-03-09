@@ -38,7 +38,7 @@ export default function Button({ icon, href, size = 48, label, style }: ButtonPr
       <div style={{
         position: 'absolute',
         inset: '-2px',
-        background: 'linear-gradient(45deg, rgba(7, 11, 38, 0.4), rgba(7, 11, 38, 0.4))',
+        background: 'linear-gradient(45deg, rgba(28, 19, 19, 0.4), rgba(224, 224, 224, 0.4))',
         filter: 'blur(10px)',
         borderRadius: '12px',
         zIndex: -1,
