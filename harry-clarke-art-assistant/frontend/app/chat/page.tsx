@@ -19,7 +19,7 @@ export default function Chat() {
           src="/assets/the-wolfsonian.png"
           alt="The Wolfsonian"
           width={160}
-          height={80}
+          height={31}
           style={{
             position: 'absolute',
             top: '20px',
