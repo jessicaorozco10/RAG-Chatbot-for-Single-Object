@@ -1,7 +1,7 @@
 import { CiSettings } from "react-icons/ci";
 import { FaUniversalAccess } from "react-icons/fa";
 import { CiCamera } from "react-icons/ci";
-import { CiCompass1 } from "react-icons/ci";
+import { MdExplore } from "react-icons/md";
 import Button from "../component/button";
 import Background from "../component/background";
 import Glass from "../component/glass";
@@ -19,7 +19,7 @@ export default function Chat() {
           src="/assets/the-wolfsonian.png"
           alt="The Wolfsonian"
           width={160}
-          height={80}
+          height={31}
           style={{
             position: 'absolute',
             top: '20px',
@@ -57,7 +57,7 @@ export default function Chat() {
           {/*panel button*/}
           <Button
             href="/panel"
-            icon={<CiCompass1 size={32}/>}
+            icon={<MdExplore size={32}/>}
             style={{ position: 'absolute', top: '100px', right: '20px' }}
           />
         </div>
