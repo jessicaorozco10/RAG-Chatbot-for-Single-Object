@@ -24,9 +24,9 @@ interface AssistantProps {
 export default function ChatUI({
   // change the color of user assistant input send
   // for now user is white with blach text
-  userBubbleClass = "bg-white/80 text-black",
+  userBubbleClass = "bg-black text-white border-2 border-white",
   // for now assistant is blue with white text
-  assistantBubbleClass = "bg-blue-500/30 text-white",
+  assistantBubbleClass = "bg-white/80 text-black",
   // tried using the button component same look but it look bad and this is more easy to see
   inputClass = "bg-white/80 text-black",
   // tried using the button component same look but it look bad and this is more easy to see
