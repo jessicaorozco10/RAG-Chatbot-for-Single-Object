@@ -1,128 +1,163 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
-import { FaMicrophone, FaStop } from "react-icons/fa";
+
+import { useEffect, useRef, useState } from "react";
+import { FaMicrophone, FaStop, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 import { IoSend } from "react-icons/io5";
-// thing to check later
-// the position if it goes over the button if we make it be front change z index
-// have the transcript initialize the first letter
-// tried having the glass comonent take the whole screen but it messes up the input
-// the glass component make the input look good in android and i phone
-// messahe need id text and sender
+
 interface Message {
-  id: number; // id for react
-  text: string; // message content
-  sender: "user" | "assistant"; // who send it
+  id: number;
+  text: string;
+  sender: "user" | "assistant";
 }
-// styling props and let oyu cistomize the color more easy
-// in order for the chat assistant to have different color we define them sepertely
+
 interface AssistantProps {
   userBubbleClass?: string;
   assistantBubbleClass?: string;
   inputClass?: string;
   sendButtonClass?: string;
 }
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+}
+
+interface SpeechRecognitionResultLike {
+  0: SpeechRecognitionAlternative;
+  isFinal: boolean;
+}
+
+interface SpeechRecognitionEventLike {
+  resultIndex: number;
+  results: ArrayLike<SpeechRecognitionResultLike>;
+}
+
+interface SpeechRecognitionInstance {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  start: () => void;
+  stop: () => void;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognitionInstance;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  }
+}
+
 export default function ChatUI({
-  // change the color of user assistant input send
-  // for now user is white with blach text
   userBubbleClass = "bg-black text-white border-2 border-white",
-  // for now assistant is blue with white text
   assistantBubbleClass = "bg-white/80 text-black",
-  // tried using the button component same look but it look bad and this is more easy to see
   inputClass = "bg-white/80 text-black",
-  // tried using the button component same look but it look bad and this is more easy to see
   sendButtonClass = "bg-white/80 text-black",
-}: 
-
-
-
-
-
-
-
-// control the chat app
-AssistantProps) {
-  // this is the state and rederence and it the control of the chat app
-  // array store message
+}: AssistantProps) {
   const [messages, setMessages] = useState<Message[]>([]);
-  // track the current text in the input box
   const [input, setInput] = useState("");
-  // track if ai is proccessing a message
   const [isLoading, setIsLoading] = useState(false);
-  // track if the microphone is listening
   const [isListening, setIsListening] = useState(false);
-  // store transcript
+  const [isSpeechEnabled, setIsSpeechEnabled] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState("");
-  // reference to the bottom div of the chat used to scroll to the latest message
   const endRef = useRef<HTMLDivElement>(null);
-  // reference to the speech recognigtion instance allowing start and stop control
-  const recognitionRef = useRef<any>(null);
-  // counter to generate unique id for each chat message when rendering list in react each element need unique id to know what change
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const idCounter = useRef(0);
-  // store the final transcript out side react state to avoid unnesarcy re render
   const finalTranscriptRef = useRef("");
-  // keep a real time copy of all message for api call with out relying on pontentially stale state
   const messagesRef = useRef<Message[]>([]);
 
-  // every message get a new number
   const nextId = () => {
     idCounter.current += 1;
     return idCounter.current;
   };
-  // messageref update
+
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
-  // scroll when there new message
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading, liveTranscript]);
-  // add user message immedietly
-  // message peoceess
-  // function that send a message to the ai
-  // send a user message to the ai get a response and update to the chat ui
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined") {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const speakAssistantReply = (reply: string) => {
+    if (
+      typeof window === "undefined" ||
+      !isSpeechEnabled ||
+      !("speechSynthesis" in window)
+    ) {
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(reply);
+    utterance.lang = "en-US";
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    window.speechSynthesis.speak(utterance);
+  };
+
   const sendMessage = async (text: string, currentMessages: Message[]) => {
-    // prevent sending empty message or sending while ai is still responding
     if (!text.trim() || isLoading) return;
-    // convert chat into ai format as it let it understand loop through every past message and convert it
+
     const historyForApi = [
-      ...currentMessages.map((m) => ({ role: m.sender, content: m.text })),
+      ...currentMessages.map((message) => ({
+        role: message.sender,
+        content: message.text,
+      })),
       { role: "user", content: text },
     ];
-    // create the user chat bubble
+
     const userMsg: Message = { id: nextId(), text, sender: "user" };
-    // show the user message immediedtly in ui clear input box tell ui that ai is thinking
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsLoading(true);
-    // send conversation to backend ai
+
     try {
       const res = await fetch("/api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: historyForApi }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      // get ai response
-      const data = await res.json();
-      const reply: string = data.reply || "No response from AI";
-      // send ai reply to chat ui
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data: { reply?: string } = await res.json();
+      const reply = data.reply ?? "No response from AI";
+
       setMessages((prev) => [
         ...prev,
         { id: nextId(), text: reply, sender: "assistant" },
       ]);
-      // speak ai response out load text to speech
-      if (typeof window !== "undefined") {
-        const utterance = new SpeechSynthesisUtterance(reply);
-        utterance.lang = "en-US";
-        window.speechSynthesis.speak(utterance);
-      }
+      speakAssistantReply(reply);
     } catch (err) {
       console.error(err);
       setMessages((prev) => [
         ...prev,
         {
           id: nextId(),
-          text: "Error: Could not reach AI. Is Ollama running?",
+          text:
+            err instanceof Error
+              ? `Error: ${err.message}`
+              : "Error: Could not reach AI. Is Ollama running?",
           sender: "assistant",
         },
       ]);
@@ -130,9 +165,23 @@ AssistantProps) {
       setIsLoading(false);
     }
   };
-  // send message
+
   const handleSend = () => sendMessage(input, messagesRef.current);
-  // control mic
+
+  const handleSpeechToggle = () => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      alert("Text to speech is not supported in this browser.");
+      return;
+    }
+
+    if (isSpeechEnabled) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+
+    setIsSpeechEnabled((prev) => !prev);
+  };
+
   const handleMicClick = () => {
     if (isListening) {
       recognitionRef.current?.stop();
@@ -140,69 +189,76 @@ AssistantProps) {
       setLiveTranscript("");
       return;
     }
-    // check if browser support speech recognition chrome speech recognition safari web kit speech recognition
+
     const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return alert("Speech Recognition not supported");
-    // create speech recognition
-    const recog = new SpeechRecognition();
-    recog.lang = "en-US";
-    recog.interimResults = true;
-    recog.continuous = true;
-    recognitionRef.current = recog;
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Speech Recognition not supported");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = true;
+    recognition.continuous = true;
+    recognitionRef.current = recognition;
     finalTranscriptRef.current = "";
-    // update ui to show mic is active
-    recog.onstart = () => {
+
+    recognition.onstart = () => {
       setIsListening(true);
       setLiveTranscript("");
       finalTranscriptRef.current = "";
     };
-    // speech come in peice
-    recog.onresult = (e: any) => {
+
+    recognition.onresult = (event) => {
       let interim = "";
       let final = "";
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const t = e.results[i][0].transcript;
-        if (e.results[i].isFinal) final += t;
-        else interim += t;
+
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          final += transcript;
+        } else {
+          interim += transcript;
+        }
       }
+
       const current = final || interim;
       finalTranscriptRef.current = current;
       setLiveTranscript(current);
     };
-    // mic turn of
-    recog.onend = () => {
+
+    recognition.onend = () => {
       setIsListening(false);
       setLiveTranscript("");
       const spoken = finalTranscriptRef.current.trim();
       finalTranscriptRef.current = "";
+
       if (spoken) {
-        sendMessage(spoken, messagesRef.current);
+        void sendMessage(spoken, messagesRef.current);
       }
     };
 
-    recog.onerror = () => {
+    recognition.onerror = () => {
       setIsListening(false);
       setLiveTranscript("");
       finalTranscriptRef.current = "";
     };
 
-    recog.start();
+    recognition.start();
   };
 
   return (
-    // overall container
-    <div className="flex flex-col w-full h-full">
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col space-y-2">
-        {/* loop through all message and make the bubble*/}
+    <div className="flex h-full w-full flex-col">
+      <div className="flex flex-1 flex-col space-y-2 overflow-y-auto p-4">
         {messages.map((msg) => (
           <div
             key={msg.id}
             className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`px-4 py-3 rounded-xl backdrop-blur-md shadow-md max-w-[70%] ${
+              className={`max-w-[70%] rounded-xl px-4 py-3 shadow-md backdrop-blur-md ${
                 msg.sender === "user" ? userBubbleClass : assistantBubbleClass
               }`}
             >
@@ -211,34 +267,31 @@ AssistantProps) {
           </div>
         ))}
 
-        {/* live transcript bubble*/}
         {isListening && (
           <div className="flex justify-end">
             <div
-              className={`px-4 py-3 rounded-xl backdrop-blur-md shadow-md max-w-[70%] opacity-60 italic ${userBubbleClass}`}
+              className={`max-w-[70%] rounded-xl px-4 py-3 italic opacity-60 shadow-md backdrop-blur-md ${userBubbleClass}`}
             >
-              {/* animated dot*/}
               {liveTranscript || (
-                <span className="flex gap-1 items-center h-5">
-                  <span className="w-2 h-2 rounded-full bg-current animate-bounce [animation-delay:0ms]" />
-                  <span className="w-2 h-2 rounded-full bg-current animate-bounce [animation-delay:150ms]" />
-                  <span className="w-2 h-2 rounded-full bg-current animate-bounce [animation-delay:300ms]" />
+                <span className="flex h-5 items-center gap-1">
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
                 </span>
               )}
             </div>
           </div>
         )}
 
-        {/* ai typing indicator*/}       
         {isLoading && (
           <div className="flex justify-start">
             <div
-              className={`px-4 py-3 rounded-xl backdrop-blur-md shadow-md ${assistantBubbleClass}`}
+              className={`rounded-xl px-4 py-3 shadow-md backdrop-blur-md ${assistantBubbleClass}`}
             >
-              <span className="flex gap-1 items-center h-5">
-                <span className="w-2 h-2 rounded-full bg-current animate-bounce [animation-delay:0ms]" />
-                <span className="w-2 h-2 rounded-full bg-current animate-bounce [animation-delay:150ms]" />
-                <span className="w-2 h-2 rounded-full bg-current animate-bounce [animation-delay:300ms]" />
+              <span className="flex h-5 items-center gap-1">
+                <span className="h-2 w-2 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
               </span>
             </div>
           </div>
@@ -247,7 +300,6 @@ AssistantProps) {
         <div ref={endRef} />
       </div>
 
-      {/* input bar*/}    
       <div className="p-4">
         <div className="relative flex items-center">
           <input
@@ -257,14 +309,31 @@ AssistantProps) {
             placeholder={isListening ? "Listening..." : "Type your message..."}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             disabled={isLoading || isListening}
-            className={`w-full px-4 pr-24 py-3 rounded-2xl backdrop-blur-md shadow-md outline-none disabled:opacity-50 transition-opacity ${inputClass}`}
+            className={`w-full rounded-2xl px-4 py-3 pr-36 shadow-md outline-none transition-opacity disabled:opacity-50 ${inputClass}`}
           />
+          <button
+            onClick={handleSpeechToggle}
+            className={`absolute right-24 rounded-full p-2 transition-all ${
+              isSpeechEnabled
+                ? "bg-black text-white hover:bg-black/90"
+                : "hover:bg-black/10"
+            }`}
+            title={
+              isSpeechEnabled
+                ? isSpeaking
+                  ? "Turn off text to speech and stop reading"
+                  : "Turn off text to speech"
+                : "Turn on text to speech"
+            }
+          >
+            {isSpeechEnabled ? <FaVolumeUp /> : <FaVolumeMute />}
+          </button>
           <button
             onClick={handleMicClick}
             disabled={isLoading}
-            className={`absolute right-12 p-2 rounded-full transition-all disabled:opacity-40 ${
+            className={`absolute right-12 rounded-full p-2 transition-all disabled:opacity-40 ${
               isListening
-                ? "bg-red-500 text-white scale-110 animate-pulse"
+                ? "scale-110 animate-pulse bg-red-500 text-white"
                 : "hover:bg-black/10"
             }`}
             title={isListening ? "Tap to stop" : "Tap to speak"}
@@ -274,7 +343,7 @@ AssistantProps) {
           <button
             onClick={handleSend}
             disabled={isLoading || isListening}
-            className={`absolute right-2 p-2 rounded-full shadow-md disabled:opacity-40 transition-opacity ${sendButtonClass}`}
+            className={`absolute right-2 rounded-full p-2 shadow-md transition-opacity disabled:opacity-40 ${sendButtonClass}`}
           >
             <IoSend />
           </button>

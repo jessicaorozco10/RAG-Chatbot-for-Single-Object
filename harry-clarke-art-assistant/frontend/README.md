@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Harry Clarke Art Assistant
 
-## Getting Started
+This frontend is a Next.js app that now uses LangChain JS for chat orchestration with a local Ollama model. Pinecone support is scaffolded behind environment flags so we can turn RAG on once the index is ready.
 
-First, run the development server:
+## Local setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. Install dependencies:
+
+```powershell
+npm.cmd install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install Ollama on your machine and start the Ollama server.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Pull the chat model:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```powershell
+ollama pull llama3.2
+```
 
-## Learn More
+4. Create `.env.local` from `.env.example`.
 
-To learn more about Next.js, take a look at the following resources:
+5. Start the app:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```powershell
+npm.cmd run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Current AI flow
 
-## Deploy on Vercel
+- `app/api/route.ts` calls the server-side LangChain chat service.
+- `lib/ai/ollama.ts` creates the local `ChatOllama` and embeddings clients.
+- `lib/ai/retrieval.ts` is the Pinecone hook. It stays dormant until `ENABLE_RAG=true` and Pinecone credentials are set.
+- `lib/ai/chat.ts` adds retrieved context to the system prompt when RAG is enabled.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## RAG enablement
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+When you are ready to connect Pinecone:
+
+1. Create a Pinecone index.
+2. Fill in `PINECONE_API_KEY` and `PINECONE_INDEX` in `.env.local`.
+3. Set `ENABLE_RAG=true`.
+4. Make sure your chosen Ollama embedding model is pulled locally, for example:
+
+```powershell
+ollama pull mxbai-embed-large
+```
+
+This repo does not ingest documents into Pinecone yet. It now has the retrieval runtime pieces needed for querying an existing index.
