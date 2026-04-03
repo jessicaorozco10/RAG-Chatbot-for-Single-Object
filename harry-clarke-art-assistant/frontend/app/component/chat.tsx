@@ -8,6 +8,7 @@ interface Message {
   id: number;
   text: string;
   sender: "user" | "assistant";
+  usedRag?: boolean;
 }
 
 interface AssistantProps {
@@ -67,6 +68,7 @@ export default function ChatUI({
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState("");
+  const [lastUsedRag, setLastUsedRag] = useState<boolean | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const idCounter = useRef(0);
@@ -136,20 +138,24 @@ export default function ChatUI({
         body: JSON.stringify({ messages: historyForApi }),
       });
 
+      const data: { reply?: string; usedRag?: boolean } = await res.json();
+
       if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
+        throw new Error(data.reply ?? `HTTP ${res.status}`);
       }
 
-      const data: { reply?: string } = await res.json();
       const reply = data.reply ?? "No response from AI";
+      const usedRag = Boolean(data.usedRag);
+      setLastUsedRag(usedRag);
 
       setMessages((prev) => [
         ...prev,
-        { id: nextId(), text: reply, sender: "assistant" },
+        { id: nextId(), text: reply, sender: "assistant", usedRag },
       ]);
       speakAssistantReply(reply);
     } catch (err) {
       console.error(err);
+      setLastUsedRag(false);
       setMessages((prev) => [
         ...prev,
         {
@@ -252,6 +258,15 @@ export default function ChatUI({
   return (
     <div className="flex h-full w-full flex-col">
       <div className="flex flex-1 flex-col space-y-2 overflow-y-auto p-4">
+        {lastUsedRag !== null && (
+          <div className="flex justify-center">
+            <div className="rounded-full border border-white/15 bg-black/35 px-3 py-1 text-xs text-white/80 backdrop-blur-md">
+              {lastUsedRag
+                ? "Using Pinecone context"
+                : "Replying without Pinecone context"}
+            </div>
+          </div>
+        )}
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -263,6 +278,11 @@ export default function ChatUI({
               }`}
             >
               {msg.text}
+              {msg.sender === "assistant" && msg.usedRag && (
+                <div className="mt-2 text-[11px] font-medium uppercase tracking-[0.12em] opacity-60">
+                  Pinecone context used
+                </div>
+              )}
             </div>
           </div>
         ))}

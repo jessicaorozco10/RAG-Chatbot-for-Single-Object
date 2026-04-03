@@ -15,8 +15,10 @@ const buildSystemPrompt = (context: string) => {
 
   return [
     baseSystemPrompt,
-    "Use the retrieved context below when it is relevant.",
-    "If the context is insufficient, say that directly.",
+    "Use the retrieved context below as your primary source of truth when answering questions about Harry Clarke, the Geneva Window, or related museum material.",
+    "Prefer details that appear in the retrieved context over general background knowledge.",
+    "If the retrieved context does not answer the question well enough, say that directly instead of filling gaps with guesses.",
+    "When helpful, mention the source context in plain language.",
     `Retrieved context:\n${context}`,
   ].join("\n\n");
 };
