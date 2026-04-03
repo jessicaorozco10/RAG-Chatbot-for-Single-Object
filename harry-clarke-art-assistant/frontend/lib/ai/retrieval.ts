@@ -9,19 +9,62 @@ type SearchHit = {
 };
 
 let pineconeIndexPromise: Promise<ReturnType<Pinecone["Index"]>> | null = null;
+let pineconeClientPromise: Promise<Pinecone> | null = null;
 
-const getPineconeIndex = async () => {
-  if (!hasPineconeConfig()) {
+const getPineconeClient = async () => {
+  if (!aiConfig.pineconeApiKey) {
     throw new Error(
-      "Pinecone is not configured. Set PINECONE_API_KEY and either PINECONE_INDEX or PINECONE_HOST first.",
+      "Pinecone is not configured. Set PINECONE_API_KEY first.",
     );
   }
 
+  if (!pineconeClientPromise) {
+    pineconeClientPromise = Promise.resolve(
+      new Pinecone({ apiKey: aiConfig.pineconeApiKey }),
+    );
+  }
+
+  return pineconeClientPromise;
+};
+
+const resolvePineconeIndexTarget = async () => {
+  if (hasPineconeConfig()) {
+    return {
+      indexName: aiConfig.pineconeIndex!,
+      host: aiConfig.pineconeHost,
+    };
+  }
+
+  const client = await getPineconeClient();
+  const indexList = await client.listIndexes();
+  const indexes = indexList.indexes ?? [];
+
+  if (indexes.length === 0) {
+    throw new Error(
+      "No Pinecone indexes were found for this API key.",
+    );
+  }
+
+  if (indexes.length > 1) {
+    const indexNames = indexes.map((index) => index.name).join(", ");
+    throw new Error(
+      `Multiple Pinecone indexes were found for this API key. Set PINECONE_INDEX or PINECONE_HOST. Available indexes: ${indexNames}`,
+    );
+  }
+
+  return {
+    indexName: indexes[0].name,
+    host: indexes[0].host,
+  };
+};
+
+const getPineconeIndex = async () => {
   if (!pineconeIndexPromise) {
+    const target = await resolvePineconeIndexTarget();
     pineconeIndexPromise = Promise.resolve(
       new Pinecone({ apiKey: aiConfig.pineconeApiKey! }).Index(
-        aiConfig.pineconeIndex!,
-        aiConfig.pineconeHost,
+        target.indexName,
+        target.host,
       ),
     );
   }
@@ -69,7 +112,7 @@ const normalizeForDeduping = (value: string) =>
   value.replace(/\s+/g, " ").trim().toLowerCase();
 
 export const getRelevantContext = async (query: string) => {
-  if (!aiConfig.ragEnabled || !hasPineconeConfig()) {
+  if (!aiConfig.ragEnabled || !aiConfig.pineconeApiKey) {
     return "";
   }
 
