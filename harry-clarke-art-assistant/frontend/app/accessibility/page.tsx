@@ -20,7 +20,7 @@ export default function Accessibility() {
   const [applied, setApplied] = useState(false);
 
   const MIN_TEXT = 16;
-  const MAX_TEXT = 40;
+  const MAX_TEXT = 32;
   const MIN_SPACE = 0;
   const MAX_SPACE = 1;
 
@@ -67,24 +67,34 @@ export default function Accessibility() {
   };
 
   return (
-    <div className="relative w-screen h-screen bg-black text-white overflow-hidden">
-      <Background />
+    <div className="relative w-screen h-screen bg-black text-white overflow-hidden shadow-[inset_0_0_80px_40px_rgba(113,113,122,0.1 )]">
       <Button
         href="/chat"
         icon={<IoChatboxEllipses size={32} />}
         style={{ position: "absolute", top: "20px", left: "20px" }}
       />
-      <div className="absolute top-[20px] left-[100px] text-[30px] font-medium">
+      <span
+        style={{
+          position: "absolute",
+          top: "20px",
+          left: "100px",
+          color: "white",
+          fontSize: "30px",
+          fontWeight: 500,
+          zIndex: 20,
+        }}
+      >
         Accessibility
-      </div>
+      </span>
 
       <hr className="absolute top-[80px] left-5 right-5 border-white/30" />
 
-      <div className="absolute top-[100px] bottom-0 left-0 right-0 flex flex-col px-8 py-6 gap-10 overflow-y-auto">
+      <div className="absolute top-[85px] bottom-0 left-0 right-0 flex flex-col px-8 py-6 gap-10 overflow-y-auto">
+
 
         {/* Text size controls */}
         <div>
-          <p className="mb-2 text-sm opacity-80">Text Size</p>
+          <p className="mb-2 text-lg">Text Size</p>
           <div className="flex items-center gap-4">
             <button
               onClick={() =>
@@ -110,7 +120,7 @@ export default function Accessibility() {
 
         {/* Letter spacing controls */}
         <div>
-          <p className="mb-2 text-sm opacity-80">Letter Spacing</p>
+          <p className="mb-2 text-lg">Letter Spacing</p>
           <div className="flex items-center gap-4">
             <button
               onClick={() =>
@@ -142,10 +152,10 @@ export default function Accessibility() {
 
         {/* Live preview of accessibility changes */}
         <div>
-          <p className="mb-3 text-sm opacity-80">Preview</p>
-
+          <p className="mb-3 text-lg">Preview</p>
+          <hr className="my-3 border-t border-gray-300" />
           <div className="max-w-[500px]">
-            <p className="text-xs opacity-60 ml-1 mb-1">Art Assistant</p>
+            <p className="text-lg ml-1 mb-1">Art Assistant</p>
 
             <div
               className="bg-white/90 text-black p-3 rounded-xl"
@@ -163,14 +173,14 @@ export default function Accessibility() {
         <div className="flex items-center gap-4">
           <button
             onClick={handleApply}
-            className="px-6 py-2 rounded-lg bg-white text-black font-medium text-sm transition-all hover:bg-white/90 active:scale-95"
+            className="px-6 py-2 rounded-lg bg-white/80 text-black font-medium text-sm transition-all hover:bg-white/90 active:scale-95"
           >
             Apply
           </button>
 
           {applied && (
             <span className="text-sm text-green-400 transition-opacity">
-              ✓ Settings applied
+              Settings applied
             </span>
           )}
         </div>

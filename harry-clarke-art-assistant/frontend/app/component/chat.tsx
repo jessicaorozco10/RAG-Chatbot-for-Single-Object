@@ -17,6 +17,7 @@ interface AssistantProps {
   assistantBubbleClass?: string;
   inputClass?: string;
   sendButtonClass?: string;
+  welcomeMessage?: string;
 }
 
 interface SpeechRecognitionAlternative {
@@ -61,6 +62,7 @@ export default function ChatUI({
   assistantBubbleClass = "bg-white/80 text-black",
   inputClass = "bg-white/80 text-black",
   sendButtonClass = "bg-white/80 text-black",
+  welcomeMessage,
 }: AssistantProps) {
   /**
  * Loads saved accessibility settings when the component mounts.
@@ -97,6 +99,14 @@ export default function ChatUI({
     return idCounter.current;
   };
 
+  useEffect(() => {
+    if (messages.length === 0) {
+      const defaultWelcome = "Welcome to the Harry Clarke Art Assistant at The Wolfsonian–FIU. I can help you explore the art and legacy of Harry Clarke—a artist known for richly detailed stained glass.";
+      const welcomeText = welcomeMessage ?? defaultWelcome;
+      setMessages([{ id: nextId(), text: welcomeText, sender: "assistant" }]);
+    }
+  }, [welcomeMessage]);
+  
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
@@ -300,7 +310,7 @@ export default function ChatUI({
           >
             <div className="flex flex-col max-w-[70%]">
               {msg.sender === "assistant" && (
-                <span className="mb-1 ml-1 text-xs font-medium text-white/60">
+                <span className="mb-1 ml-1 text-m font-medium text-white/80">
                   Art Assistant
                 </span>
               )}
