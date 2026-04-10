@@ -1,5 +1,5 @@
 import { FaUniversalAccess } from "react-icons/fa";
-import { MdExplore } from "react-icons/md";
+import { FaMagnifyingGlass } from "react-icons/fa6";
 import Button from "../component/button";
 import Image from "next/image";
 import ChatUI from "../component/chat";
@@ -16,7 +16,7 @@ export default function ChatPage() {
         style={{
           position: "absolute",
           top: "20px",
-          left: "100px",
+          left: "75px",
           zIndex: 20,
         }}
       />
@@ -25,9 +25,9 @@ export default function ChatPage() {
         style={{
           position: "absolute",
           top: "60px",
-          left: "120px",
+          left: "95px",
           color: "white",
-          fontSize: "10px",
+          fontSize: "11px",
           fontWeight: 500,
           zIndex: 20,
         }}
@@ -39,14 +39,27 @@ export default function ChatPage() {
         <Button
           href="/accessibility"
           icon={<FaUniversalAccess size={32} />}
-          style={{ position: "absolute", top: "20px", right: "20px" }}
+          style={{ position: "absolute", top: "20px", right: "15px" }}
         />
-
+          <p style={{position: "absolute", top: "70px", right: "10px", color: "white", fontSize: "11px", fontWeight: 500}}> Accessibility </p>
         <Button
           href="/panel"
-          icon={<MdExplore size={32} />}
-          style={{ position: "absolute", top: "20px", left: "20px" }}
+          icon={<FaMagnifyingGlass size={32} />}
+          style={{ position: "absolute", top: "20px", right: "85px" }}
         />
+          <p style={{position: "absolute", top: "70px", right: "83px", color: "white", fontSize: "11px", fontWeight: 500}}> See Panels </p>
+
+          <Image src="/assets/HARRYCLARK_GENEVA WINDOW.jpg"
+                 alt="Harry Clarke Geneva Window"
+                 height= {4}
+                 width={60}
+                 style={{
+                     position: "sticky",
+                     top: "20px",
+                     left: "9px",
+                     zIndex: 20,
+                 }}
+          />
       </div>
 
       <div
