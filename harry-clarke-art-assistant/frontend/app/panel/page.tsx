@@ -1,5 +1,4 @@
 import Background from "../component/background";
-import Glass from "../component/glass";
 import Button from "../component/button";
 import { IoChatboxEllipses } from "react-icons/io5";
 
@@ -7,7 +6,6 @@ export default function PanelPage() {
   return (
     <div className="relative h-screen w-screen">
       <Background />
-      <Glass>
         <span
           style={{
             position: "absolute",
@@ -34,7 +32,6 @@ export default function PanelPage() {
             </p>
           </div>
         </div>
-      </Glass>
     </div>
   );
 }

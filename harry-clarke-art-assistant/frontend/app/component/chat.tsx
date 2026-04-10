@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FaMicrophone, FaStop, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 import { IoSend } from "react-icons/io5";
+import { getAccessibilitySettings } from "@/lib/accesabilityStorage";
 
 interface Message {
   id: number;
@@ -45,7 +46,7 @@ interface SpeechRecognitionInstance {
 }
 
 interface SpeechRecognitionConstructor {
-  new (): SpeechRecognitionInstance;
+  new(): SpeechRecognitionInstance;
 }
 
 declare global {
@@ -56,11 +57,25 @@ declare global {
 }
 
 export default function ChatUI({
-  userBubbleClass = "bg-black text-white border-2 border-white",
+  userBubbleClass = "bg-zinc-800/50 text-white border-2 border-zinc-500/70 backdrop-blur-md shadow-md",
   assistantBubbleClass = "bg-white/80 text-black",
   inputClass = "bg-white/80 text-black",
   sendButtonClass = "bg-white/80 text-black",
 }: AssistantProps) {
+  /**
+ * Loads saved accessibility settings when the component mounts.
+ * Updates text size and letter spacing from stored user preferences
+ * so the UI stays consistent across sessions.
+ */
+  const [textSize, setTextSize] = useState(16);
+  const [spacing, setSpacing] = useState(0);
+  useEffect(() => {
+    const settings = getAccessibilitySettings();
+    if (settings) {
+      setTextSize(settings.textScale);
+      setSpacing(settings.letterSpacing);
+    }
+  }, []);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -74,6 +89,8 @@ export default function ChatUI({
   const idCounter = useRef(0);
   const finalTranscriptRef = useRef("");
   const messagesRef = useRef<Message[]>([]);
+  // Added ref for auto growing textarea
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const nextId = () => {
     idCounter.current += 1;
@@ -95,6 +112,15 @@ export default function ChatUI({
       }
     };
   }, []);
+
+  // Auto resize textarea when input changes
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  }, [input]);
 
   const speakAssistantReply = (reply: string) => {
     if (
@@ -272,17 +298,30 @@ export default function ChatUI({
             key={msg.id}
             className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
           >
-            <div
-              className={`max-w-[70%] rounded-xl px-4 py-3 shadow-md backdrop-blur-md ${
-                msg.sender === "user" ? userBubbleClass : assistantBubbleClass
-              }`}
-            >
-              {msg.text}
-              {msg.sender === "assistant" && msg.usedRag && (
-                <div className="mt-2 text-[11px] font-medium uppercase tracking-[0.12em] opacity-60">
-                  Pinecone context used
-                </div>
+            <div className="flex flex-col max-w-[70%]">
+              {msg.sender === "assistant" && (
+                <span className="mb-1 ml-1 text-xs font-medium text-white/60">
+                  Art Assistant
+                </span>
               )}
+
+              {/* Added break words whitespace pre wrap to prevent text overflow */}
+              <div
+                className={`rounded-xl px-4 py-3 shadow-md backdrop-blur-md break-words whitespace-pre-wrap ${msg.sender === "user" ? userBubbleClass : assistantBubbleClass
+                  }`}
+                style={{
+                  fontSize: `${textSize}px`,
+                  letterSpacing: `${spacing}px`,
+                }}
+              >
+                {msg.text}
+
+                {msg.sender === "assistant" && msg.usedRag && (
+                  <div className="mt-2 text-[11px] font-medium uppercase tracking-[0.12em] opacity-60">
+                    Pinecone context used
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ))}
@@ -290,7 +329,7 @@ export default function ChatUI({
         {isListening && (
           <div className="flex justify-end">
             <div
-              className={`max-w-[70%] rounded-xl px-4 py-3 italic opacity-60 shadow-md backdrop-blur-md ${userBubbleClass}`}
+              className={`max-w-[70%] rounded-xl px-4 py-3 italic opacity-60 shadow-md backdrop-blur-md break-words whitespace-pre-wrap ${userBubbleClass}`}
             >
               {liveTranscript || (
                 <span className="flex h-5 items-center gap-1">
@@ -322,22 +361,29 @@ export default function ChatUI({
 
       <div className="p-4">
         <div className="relative flex items-center">
-          <input
-            type="text"
+          {/* Replaced input with auto growing textarea */}
+          <textarea
+            ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={isListening ? "Listening..." : "Type your message..."}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
             disabled={isLoading || isListening}
-            className={`w-full rounded-2xl px-4 py-3 pr-36 shadow-md outline-none transition-opacity disabled:opacity-50 ${inputClass}`}
+            rows={1}
+            className={`w-full resize-none overflow-y-auto rounded-2xl px-4 py-3 pr-36 shadow-md outline-none transition-opacity disabled:opacity-50 ${inputClass}`}
+            style={{ maxHeight: "200px" }}
           />
           <button
             onClick={handleSpeechToggle}
-            className={`absolute right-24 rounded-full p-2 transition-all ${
-              isSpeechEnabled
+            className={`absolute right-24 rounded-full p-2 transition-all ${isSpeechEnabled
                 ? "bg-black text-white hover:bg-black/90"
                 : "hover:bg-black/10"
-            }`}
+              }`}
             title={
               isSpeechEnabled
                 ? isSpeaking
@@ -351,11 +397,10 @@ export default function ChatUI({
           <button
             onClick={handleMicClick}
             disabled={isLoading}
-            className={`absolute right-12 rounded-full p-2 transition-all disabled:opacity-40 ${
-              isListening
+            className={`absolute right-12 rounded-full p-2 transition-all disabled:opacity-40 ${isListening
                 ? "scale-110 animate-pulse bg-red-500 text-white"
                 : "hover:bg-black/10"
-            }`}
+              }`}
             title={isListening ? "Tap to stop" : "Tap to speak"}
           >
             {isListening ? <FaStop /> : <FaMicrophone />}

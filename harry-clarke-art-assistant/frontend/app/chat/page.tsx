@@ -3,10 +3,11 @@ import { MdExplore } from "react-icons/md";
 import Button from "../component/button";
 import Image from "next/image";
 import ChatUI from "../component/chat";
+import Background from "../component/background";
 
 export default function ChatPage() {
   return (
-    <div className="relative h-screen w-screen bg-black">
+    <div className="relative h-screen w-screen bg-black shadow-[inset_0_0_80px_40px_rgba(113,113,122,0.1)]">
       <Image
         src="/assets/the-wolfsonian.png"
         alt="The Wolfsonian"
