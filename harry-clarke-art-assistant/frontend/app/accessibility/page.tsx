@@ -67,7 +67,7 @@ export default function Accessibility() {
   };
 
   return (
-    <div className="relative w-screen h-screen bg-black text-white overflow-hidden shadow-[inset_0_0_80px_40px_rgba(113,113,122,0.1 )]">
+    <div className="relative w-screen h-screen bg-black text-white overflow-hidden shadow-[inset_0_0_80px_40px_rgba(113,113,122,0.1 overflow-hidden)]">
       <Background />
       <Button
         href="/chat"

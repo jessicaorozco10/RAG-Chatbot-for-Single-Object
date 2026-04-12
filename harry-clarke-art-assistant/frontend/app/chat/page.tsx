@@ -7,7 +7,7 @@ import Background from "../component/background";
 
 export default function ChatPage() {
   return (
-    <div className="relative h-screen w-screen bg-black shadow-[inset_0_0_80px_40px_rgba(113,113,122,0.1)]">
+    <div className="relative h-screen w-screen bg-black shadow-[inset_0_0_80px_40px_rgba(113,113,122,0.1) overflow-hidden]">
       <Background />
       <Image
         src="/assets/the-wolfsonian.png"
