@@ -4,7 +4,7 @@ export default function Background() {
       <div
         className="absolute inset-0"
         style={{
-          background: `linear-gradient(to bottom, #161616 0%, #141414 30%, #000000 100%)`,
+          background: `linear-gradient(to bottom, #000000 0%, #141414 30%, #000000 100%)`,
         }}
       />
 

@@ -67,7 +67,7 @@ export default function Accessibility() {
   };
 
   return (
-    <div className="relative h-screen w-screen bg-black">
+    <div className="relative h-screen w-screen bg-black text-white">
       <Background />
       <Button
         href="/chat"
@@ -79,7 +79,6 @@ export default function Accessibility() {
           position: "absolute",
           top: "20px",
           left: "100px",
-          color: "white",
           fontSize: "30px",
           fontWeight: 500,
           zIndex: 20,
@@ -101,7 +100,7 @@ export default function Accessibility() {
               onClick={() =>
                 handleTextSizeChange(Math.max(MIN_TEXT, textSize - 2))
               }
-              className="w-10 h-10 border border-white/40 rounded"
+              className="w-10 h-10 border border-white/40 rounded text-white text-2xl leading-none flex items-center justify-center pb-1"
             >
               −
             </button>
@@ -112,7 +111,7 @@ export default function Accessibility() {
               onClick={() =>
                 handleTextSizeChange(Math.min(MAX_TEXT, textSize + 2))
               }
-              className="w-10 h-10 border border-white/40 rounded"
+              className="w-10 h-10 border border-white/40 rounded text-white text-2xl leading-none flex items-center justify-center pb-1"
             >
               +
             </button>
@@ -129,7 +128,7 @@ export default function Accessibility() {
                   Math.max(MIN_SPACE, Number((spacing - 0.2).toFixed(1)))
                 )
               }
-              className="w-10 h-10 border border-white/40 rounded"
+              className="w-10 h-10 border border-white/40 rounded text-white text-2xl leading-none flex items-center justify-center pb-1"
             >
               −
             </button>
@@ -144,7 +143,7 @@ export default function Accessibility() {
                   Math.min(MAX_SPACE, Number((spacing + 0.2).toFixed(1)))
                 )
               }
-              className="w-10 h-10 border border-white/40 rounded"
+              className="w-10 h-10 border border-white/40 rounded text-white text-2xl leading-none flex items-center justify-center pb-1"
             >
               +
             </button>
@@ -185,7 +184,6 @@ export default function Accessibility() {
             </span>
           )}
         </div>
-
       </div>
     </div>
   );
