@@ -1,13 +1,10 @@
 export default function Background() {
   return (
     <div className="fixed inset-0 z-0 overflow-hidden bg-[#080808]">
-
       <div
         className="absolute inset-0"
         style={{
-          background: `
-            linear-gradient(160deg, #050505 0%, #141414 45%, #1e1e1e 100%)
-          `,
+          background: `linear-gradient(to bottom, #161616 0%, #141414 30%, #000000 100%)`,
         }}
       />
 
