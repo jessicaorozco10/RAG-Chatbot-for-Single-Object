@@ -68,6 +68,7 @@ export default function Accessibility() {
 
   return (
     <div className="relative w-screen h-screen bg-black text-white overflow-hidden shadow-[inset_0_0_80px_40px_rgba(113,113,122,0.1 )]">
+      <Background />
       <Button
         href="/chat"
         icon={<IoChatboxEllipses size={32} />}

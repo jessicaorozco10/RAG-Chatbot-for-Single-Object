@@ -6,6 +6,7 @@ import GlassScene from "../component/GlassScene";
 export default function PanelPage() {
   return (
     <div className="relative h-screen w-screen bg-black shadow-[inset_0_0_80px_40px_rgba(113,113,122,0.1)]">
+      <Background />
 
       {/* title */}
       <span
@@ -42,7 +43,7 @@ export default function PanelPage() {
 
       {/* glass scene */}
       <div className="absolute top-[80px] left-0 right-0 bottom-0 p-4">
-        <GlassScene width="100%" height="100%" />
+        <GlassScene width="100%" height="100%" initialTime={50} />
       </div>
     </div>
   );

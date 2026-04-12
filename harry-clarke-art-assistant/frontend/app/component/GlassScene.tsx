@@ -35,8 +35,8 @@ function LoadingOverlay() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "#ffffff",
-        color: "#333333",
+        background: "#121212",
+        color: "#ffffff",
         fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
@@ -45,8 +45,8 @@ function LoadingOverlay() {
           width: "50px",
           height: "50px",
           border: "4px solid rgba(0,0,0,0.1)",
-          borderTop: "4px solid #333333",
-          borderRadius: "50%",
+          borderTop: "4px solid #717171",
+          borderRadius: "100%",
           animation: "spin 1s linear infinite",
           marginBottom: "20px",
         }}
@@ -126,8 +126,21 @@ function TimeSlider({
         transform: "translateX(-50%)",
         width: "60%",
         zIndex: 10,
+        textAlign: "center",
       }}
     >
+      <div
+        style={{
+          color: "#000000",
+          fontSize: "18px",
+          fontWeight: 500,
+          marginBottom: "12px",
+          textShadow: "0 2px 8px rgba(255, 255, 255, 0.6)",
+          letterSpacing: "0.5px",
+        }}
+      >
+        ·Slide to explore·
+      </div>
       <input
         type="range"
         min={0}
@@ -206,8 +219,10 @@ export default function GlassScene({
     if (t > 60) return "sunset";
     if (t > 50) return "afternoon";
     if (t > 40) return "midday";
-    if (t > 30) return "lateMorning";
-    if (t > 20) return "morning";
+    if (t > 30) return "early";
+    if (t > 30) return "noon";
+    if (t > 20) return "lateMorning";
+    if (t > 10) return "morning";
     return "sunrise";
   };
 
@@ -300,7 +315,7 @@ export default function GlassScene({
   const skyProps = getSkyProps();
 
   const arrowClasses = (side: "left" | "right") =>
-    `absolute top-1/2 -translate-y-1/2 text-3xl bg-gray-400/80 text-gray-800 border border-gray-400 px-4 py-2.5 cursor-pointer z-[1100] rounded-2xl ${side === "left" ? "left-5" : "right-5"
+    `absolute top-1/2 -translate-y-1/2 text-3xl bg-gray-800/80 text-gray-100 border border-gray-400 px-4 py-2.5 cursor-pointer z-[1100] rounded-2xl ${side === "left" ? "left-5" : "right-5"
     }`;
 
   return (
@@ -344,21 +359,20 @@ export default function GlassScene({
         {/* Reset View button */}
         <button
           onClick={resetCamera}
-          className="absolute top-4 left-4 z-[1100] px-3 py-1.5 bg-gray-400/80 text-gray-800 border border-gray-400 cursor-pointer rounded-xl text-sm font-medium"
+          className="absolute top-4 left-4 z-[1100] px-3 py-1.5 bg-gray-800/80 text-gray-100 border border-gray-400 cursor-pointer rounded-xl text-sm font-medium"
         >
           Reset View
         </button>
 
-        {/* Panel indicator */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1100] px-3 py-1.5 bg-gray-400/80 text-gray-800 border border-gray-400 rounded-xl pointer-events-none text-center leading-tight">
-          <div className="text-sm opacity-90">Panel</div>
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1100] px-3 py-1.5 bg-gray-800/80 text-gray-100 border border-gray-400 rounded-xl pointer-events-none text-center leading-tight">
+          <div className="text-sm opacity-80">Panel</div>
           <div className="text-base font-semibold">{index + 1}/8</div>
         </div>
 
         {/* Fullscreen toggle */}
         <button
           onClick={toggleFullscreen}
-          className="absolute top-4 right-4 z-[1100] px-3 py-1.5 bg-gray-400/80 text-gray-800 border border-gray-400 cursor-pointer rounded-xl text-sm font-medium"
+          className="absolute top-4 right-4 z-[1100] px-3 py-1.5 bg-gray-800/80 text-gray-100 border border-gray-400 cursor-pointer rounded-xl text-sm font-medium"
         >
           {isFullscreen ? "✕ Exit Fullscreen" : "⛶ Expand"}
         </button>

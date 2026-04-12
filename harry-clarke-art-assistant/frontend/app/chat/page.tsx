@@ -1,5 +1,5 @@
 import { FaUniversalAccess } from "react-icons/fa";
-import { FaMagnifyingGlass } from "react-icons/fa6";
+import { FaRegEye } from "react-icons/fa";
 import Button from "../component/button";
 import Image from "next/image";
 import ChatUI from "../component/chat";
@@ -8,6 +8,7 @@ import Background from "../component/background";
 export default function ChatPage() {
   return (
     <div className="relative h-screen w-screen bg-black shadow-[inset_0_0_80px_40px_rgba(113,113,122,0.1)]">
+      <Background />
       <Image
         src="/assets/the-wolfsonian.png"
         alt="The Wolfsonian"
@@ -16,7 +17,7 @@ export default function ChatPage() {
         style={{
           position: "absolute",
           top: "20px",
-          left: "75px",
+          left: "65px",
           zIndex: 20,
         }}
       />
@@ -25,7 +26,7 @@ export default function ChatPage() {
         style={{
           position: "absolute",
           top: "60px",
-          left: "95px",
+          left: "85px",
           color: "white",
           fontSize: "11px",
           fontWeight: 500,
@@ -41,21 +42,21 @@ export default function ChatPage() {
           icon={<FaUniversalAccess size={32} />}
           style={{ position: "absolute", top: "20px", right: "15px" }}
         />
-          <p style={{position: "absolute", top: "70px", right: "10px", color: "white", fontSize: "11px", fontWeight: 500}}> Accessibility </p>
+        <p style={{ position: "absolute", top: "75px", right: "10px", color: "white", fontSize: "11px", fontWeight: 500, zIndex: 50}}> Accessibility </p>
         <Button
           href="/panel"
-          icon={<FaMagnifyingGlass size={32} />}
-          style={{ position: "absolute", top: "20px", right: "85px" }}
+          icon={<FaRegEye size={32} />}
+          style={{ position: "absolute", top: "20px", right: "90px" }}
         />
-          <p style={{position: "absolute", top: "70px", right: "83px", color: "white", fontSize: "11px", fontWeight: 500}}> See Panels </p>
+        <p style={{ position: "absolute", top: "75px", right: "87px", color: "white", fontSize: "11px", fontWeight: 500, zIndex: 50}}> See Panels </p>
 
           <Image src="/assets/HARRYCLARK_GENEVA WINDOW.jpg"
                  alt="Harry Clarke Geneva Window"
-                 height= {4}
-                 width={60}
+                 height= {88}
+                 width={50}
                  style={{
-                     position: "sticky",
-                     top: "20px",
+                     position: "absolute",
+                     top: "10px",
                      left: "9px",
                      zIndex: 20,
                  }}
