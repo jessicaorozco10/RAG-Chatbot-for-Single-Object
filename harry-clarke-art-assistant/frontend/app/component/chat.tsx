@@ -106,7 +106,7 @@ export default function ChatUI({
       setMessages([{ id: nextId(), text: welcomeText, sender: "assistant" }]);
     }
   }, [welcomeMessage]);
-  
+
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
@@ -369,7 +369,7 @@ export default function ChatUI({
         <div ref={endRef} />
       </div>
 
-      <div className="p-4">
+      <div className="p-2">
         <div className="relative flex items-center">
           {/* Replaced input with auto growing textarea */}
           <textarea
@@ -391,8 +391,8 @@ export default function ChatUI({
           <button
             onClick={handleSpeechToggle}
             className={`absolute right-24 rounded-full p-2 transition-all ${isSpeechEnabled
-                ? "bg-black text-white hover:bg-black/90"
-                : "hover:bg-black/10"
+              ? "bg-black text-white hover:bg-black/90"
+              : "hover:bg-black/10"
               }`}
             title={
               isSpeechEnabled
@@ -408,8 +408,8 @@ export default function ChatUI({
             onClick={handleMicClick}
             disabled={isLoading}
             className={`absolute right-12 rounded-full p-2 transition-all disabled:opacity-40 ${isListening
-                ? "scale-110 animate-pulse bg-red-500 text-white"
-                : "hover:bg-black/10"
+              ? "scale-110 animate-pulse bg-red-500 text-white"
+              : "hover:bg-black/10"
               }`}
             title={isListening ? "Tap to stop" : "Tap to speak"}
           >
@@ -423,6 +423,9 @@ export default function ChatUI({
             <IoSend />
           </button>
         </div>
+        <p className="mt-2 text-center text-xs text-white/60">
+          AI responses may be inaccurate.
+        </p>
       </div>
     </div>
   );
