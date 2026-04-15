@@ -111,6 +111,96 @@ const getHitContent = (fields: PineconeFieldMap) => {
 const normalizeForDeduping = (value: string) =>
   value.replace(/\s+/g, " ").trim().toLowerCase();
 
+const STOP_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "are",
+  "as",
+  "at",
+  "be",
+  "but",
+  "by",
+  "for",
+  "from",
+  "how",
+  "i",
+  "in",
+  "is",
+  "it",
+  "its",
+  "me",
+  "of",
+  "on",
+  "or",
+  "our",
+  "tell",
+  "that",
+  "the",
+  "their",
+  "them",
+  "this",
+  "to",
+  "us",
+  "was",
+  "what",
+  "when",
+  "where",
+  "which",
+  "who",
+  "why",
+  "with",
+  "you",
+  "your",
+]);
+
+const DOMAIN_KEYWORDS = [
+  "harry",
+  "clarke",
+  "geneva",
+  "window",
+  "wolfsonian",
+  "panel",
+  "panels",
+  "stained glass",
+  "labour",
+  "labor",
+  "ilo",
+  "museum",
+];
+
+const tokenizeMeaningfulWords = (value: string) =>
+  value
+    .toLowerCase()
+    .match(/[a-z0-9]+/g)
+    ?.filter((token) => token.length >= 4 && !STOP_WORDS.has(token)) ?? [];
+
+const hasDomainIntent = (query: string) => {
+  const normalized = query.toLowerCase();
+  return DOMAIN_KEYWORDS.some((keyword) => normalized.includes(keyword));
+};
+
+const hasMeaningfulOverlap = (query: string, candidates: string[]) => {
+  const queryTokens = new Set(tokenizeMeaningfulWords(query));
+
+  if (queryTokens.size === 0) {
+    return false;
+  }
+
+  return candidates.some((candidate) => {
+    const candidateTokens = new Set(tokenizeMeaningfulWords(candidate));
+    let overlapCount = 0;
+
+    for (const token of queryTokens) {
+      if (candidateTokens.has(token)) {
+        overlapCount += 1;
+      }
+    }
+
+    return overlapCount >= 1;
+  });
+};
+
 export const getRelevantContext = async (query: string) => {
   if (!aiConfig.ragEnabled || !aiConfig.pineconeApiKey) {
     return "";
@@ -154,6 +244,19 @@ export const getRelevantContext = async (query: string) => {
   }
 
   if (uniqueHits.length === 0) {
+    return "";
+  }
+
+  const candidateTexts = uniqueHits.flatMap((hit) => {
+    const fields = (hit.fields ?? {}) as PineconeFieldMap;
+    const content = getHitContent(fields);
+    const source =
+      typeof fields.source === "string" ? fields.source : String(hit._id);
+
+    return [content, source];
+  });
+
+  if (!hasDomainIntent(query) && !hasMeaningfulOverlap(query, candidateTexts)) {
     return "";
   }
 

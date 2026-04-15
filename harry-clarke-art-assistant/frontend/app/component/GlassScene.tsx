@@ -9,6 +9,7 @@ import {
   useTexture,
   useProgress,
 } from "@react-three/drei";
+import Image from "next/image";
 import * as THREE from "three";
 
 /* loading overlay with progress indicator */
@@ -172,11 +173,42 @@ interface GlassSceneProps {
   onIndexChange?: (index: number) => void;
 }
 
+const PANEL_IMAGES = [
+  "/assets/panel1.png",
+  "/assets/panel2.png",
+  "/assets/panel3.png",
+  "/assets/panel4.png",
+  "/assets/panel5.png",
+  "/assets/panel6.png",
+  "/assets/panel7.png",
+  "/assets/panel8.png",
+];
+
+const supportsWebGL = () => {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    const canvas = document.createElement("canvas");
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: false,
+      alpha: true,
+      powerPreference: "low-power",
+    });
+    renderer.dispose();
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 /* main component */
 export default function GlassScene({
   width = "800px",
   height = "600px",
-  initialTime = 0,
+  initialTime = 50,
   initialIndex = 0,
   className,
   style,
@@ -186,8 +218,11 @@ export default function GlassScene({
   const [time, setTime] = useState(initialTime);
   const [index, setIndex] = useState(initialIndex);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [webglEnabled] = useState(() => supportsWebGL());
   const containerRef = useRef<HTMLDivElement>(null);
-  const orbitRef = useRef<any>(null);
+  const orbitRef = useRef<React.ComponentRef<typeof OrbitControls> | null>(
+    null
+  );
 
   useEffect(() => onTimeChange?.(time), [time, onTimeChange]);
   useEffect(() => onIndexChange?.(index), [index, onIndexChange]);
@@ -219,9 +254,7 @@ export default function GlassScene({
     if (t > 60) return "sunset";
     if (t > 50) return "afternoon";
     if (t > 40) return "midday";
-    if (t > 30) return "early";
-    if (t > 30) return "noon";
-    if (t > 20) return "lateMorning";
+    if (t > 30) return "lateMorning";
     if (t > 10) return "morning";
     return "sunrise";
   };
@@ -318,6 +351,29 @@ export default function GlassScene({
     `absolute top-1/2 -translate-y-1/2 text-3xl bg-gray-800/80 text-gray-100 border border-gray-400 px-4 py-2.5 cursor-pointer z-[1100] rounded-2xl ${side === "left" ? "left-5" : "right-5"
     }`;
 
+  const controls = (
+    <>
+      <button
+        onClick={() => setIndex((i) => (i + 7) % 8)}
+        className={arrowClasses("left")}
+      >
+        ◀
+      </button>
+
+      <button
+        onClick={() => setIndex((i) => (i + 1) % 8)}
+        className={arrowClasses("right")}
+      >
+        ▶
+      </button>
+
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1100] px-3 py-1.5 bg-gray-800/80 text-gray-100 border border-gray-400 rounded-xl pointer-events-none text-center leading-tight">
+        <div className="text-sm opacity-80">Panel</div>
+        <div className="text-base font-semibold">{index + 1}/8</div>
+      </div>
+    </>
+  );
+
   return (
     <div
       ref={containerRef}
@@ -332,42 +388,60 @@ export default function GlassScene({
       }}
     >
       <div className="relative w-full h-full bg-black">
-        <Canvas
-          className="absolute inset-0 z-0"
-          camera={{ position: [5, 0, 0], fov: 50 }}
-          shadows
-        >
-          <ambientLight intensity={0.3} />
-          <directionalLight
-            position={skyProps.sunPosition}
-            intensity={skyProps.intensity}
-            castShadow
-          />
-          <GlassModel index={index} />
-          <Sky
-            turbidity={skyProps.turbidity}
-            rayleigh={skyProps.rayleigh}
-            mieCoefficient={skyProps.mieCoefficient}
-            distance={450000}
-            sunPosition={skyProps.sunPosition}
-          />
-          <OrbitControls ref={orbitRef} />
-        </Canvas>
-
-        <LoadingOverlay />
+        {webglEnabled ? (
+          <>
+            <Canvas
+              className="absolute inset-0 z-0"
+              camera={{ position: [5, 0, 0], fov: 50 }}
+              shadows
+            >
+              <ambientLight intensity={0.3} />
+              <directionalLight
+                position={skyProps.sunPosition}
+                intensity={skyProps.intensity}
+                castShadow
+              />
+              <GlassModel index={index} />
+              <Sky
+                turbidity={skyProps.turbidity}
+                rayleigh={skyProps.rayleigh}
+                mieCoefficient={skyProps.mieCoefficient}
+                distance={450000}
+                sunPosition={skyProps.sunPosition}
+              />
+              <OrbitControls ref={orbitRef} />
+            </Canvas>
+            <LoadingOverlay />
+          </>
+        ) : (
+          <div className="absolute inset-0 z-0 flex items-center justify-center bg-neutral-950">
+            <div className="relative h-full w-full">
+              <Image
+                src={PANEL_IMAGES[index]}
+                alt={`Geneva Window panel ${index + 1}`}
+                fill
+                className="object-contain p-8"
+                priority
+              />
+              <div className="absolute inset-x-0 bottom-8 flex justify-center">
+                <div className="max-w-md rounded-2xl border border-white/15 bg-black/60 px-4 py-3 text-center text-sm text-white/80 backdrop-blur-md">
+                  3D view is unavailable in this browser environment. Showing a
+                  panel image fallback instead.
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Reset View button */}
-        <button
-          onClick={resetCamera}
-          className="absolute top-4 left-4 z-[1100] px-3 py-1.5 bg-gray-800/80 text-gray-100 border border-gray-400 cursor-pointer rounded-xl text-sm font-medium"
-        >
-          Reset View
-        </button>
-
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1100] px-3 py-1.5 bg-gray-800/80 text-gray-100 border border-gray-400 rounded-xl pointer-events-none text-center leading-tight">
-          <div className="text-sm opacity-80">Panel</div>
-          <div className="text-base font-semibold">{index + 1}/8</div>
-        </div>
+        {webglEnabled ? (
+          <button
+            onClick={resetCamera}
+            className="absolute top-4 left-4 z-[1100] px-3 py-1.5 bg-gray-800/80 text-gray-100 border border-gray-400 cursor-pointer rounded-xl text-sm font-medium"
+          >
+            Reset View
+          </button>
+        ) : null}
 
         {/* Fullscreen toggle */}
         <button
@@ -377,23 +451,9 @@ export default function GlassScene({
           {isFullscreen ? "✕ Exit Fullscreen" : "⛶ Expand"}
         </button>
 
-        {/* Left arrow button */}
-        <button
-          onClick={() => setIndex((i) => (i + 7) % 8)}
-          className={arrowClasses("left")}
-        >
-          ◀
-        </button>
+        {controls}
 
-        {/* Right arrow button */}
-        <button
-          onClick={() => setIndex((i) => (i + 1) % 8)}
-          className={arrowClasses("right")}
-        >
-          ▶
-        </button>
-
-        <TimeSlider time={time} setTime={setTime} />
+        {webglEnabled ? <TimeSlider time={time} setTime={setTime} /> : null}
       </div>
     </div>
   );

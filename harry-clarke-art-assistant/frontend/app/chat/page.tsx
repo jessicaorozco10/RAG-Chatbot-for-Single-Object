@@ -1,5 +1,5 @@
 import { FaUniversalAccess } from "react-icons/fa";
-import { FaRegEye } from "react-icons/fa";
+import { FaMagnifyingGlass } from "react-icons/fa6";
 import Button from "../component/button";
 import Image from "next/image";
 import ChatUI from "../component/chat";
@@ -7,8 +7,23 @@ import Background from "../component/background";
 
 export default function ChatPage() {
   return (
-    <div className="relative h-screen w-screen bg-black">
+    <div className="relative h-screen w-screen bg-black shadow-[inset_0_0_80px_40px_rgba(113,113,122,0.1)]">
       <Background />
+
+      <Image
+        src="/assets/HARRYCLARK_GENEVA WINDOW.jpg"
+        alt="Harry Clarke Geneva Window"
+        width={60}
+        height={240}
+        style={{
+          position: "absolute",
+          top: "20px",
+          left: "10px",
+          zIndex: 20,
+          height: "auto",
+        }}
+      />
+
       <Image
         src="/assets/the-wolfsonian.png"
         alt="The Wolfsonian"
@@ -17,7 +32,7 @@ export default function ChatPage() {
         style={{
           position: "absolute",
           top: "20px",
-          left: "65px",
+          left: "75px",
           zIndex: 20,
         }}
       />
@@ -26,7 +41,7 @@ export default function ChatPage() {
         style={{
           position: "absolute",
           top: "60px",
-          left: "85px",
+          left: "95px",
           color: "white",
           fontSize: "11px",
           fontWeight: 500,
@@ -36,31 +51,42 @@ export default function ChatPage() {
         Harry Clarke Art Assistant
       </span>
 
-      <div className="h-full w-full">
+      <div className="h-full w-full relative z-10">
         <Button
           href="/accessibility"
           icon={<FaUniversalAccess size={32} />}
           style={{ position: "absolute", top: "20px", right: "15px" }}
         />
-        <p style={{ position: "absolute", top: "75px", right: "10px", color: "white", fontSize: "11px", fontWeight: 500, zIndex: 50}}> Accessibility </p>
+        <p
+          style={{
+            position: "absolute",
+            top: "70px",
+            right: "10px",
+            color: "white",
+            fontSize: "11px",
+            fontWeight: 500,
+          }}
+        >
+          Accessibility
+        </p>
+
         <Button
           href="/panel"
-          icon={<FaRegEye size={32} />}
-          style={{ position: "absolute", top: "20px", right: "90px" }}
+          icon={<FaMagnifyingGlass size={32} />}
+          style={{ position: "absolute", top: "20px", right: "85px" }}
         />
-        <p style={{ position: "absolute", top: "75px", right: "87px", color: "white", fontSize: "11px", fontWeight: 500, zIndex: 50}}> See Panels </p>
-
-          <Image src="/assets/HARRYCLARK_GENEVA WINDOW.jpg"
-                 alt="Harry Clarke Geneva Window"
-                 height= {88}
-                 width={50}
-                 style={{
-                     position: "absolute",
-                     top: "10px",
-                     left: "9px",
-                     zIndex: 20,
-                 }}
-          />
+        <p
+          style={{
+            position: "absolute",
+            top: "70px",
+            right: "83px",
+            color: "white",
+            fontSize: "11px",
+            fontWeight: 500,
+          }}
+        >
+          See Panels
+        </p>
       </div>
 
       <div

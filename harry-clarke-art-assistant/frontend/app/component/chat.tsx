@@ -4,6 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { FaMicrophone, FaStop, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 import { IoSend } from "react-icons/io5";
 import { getAccessibilitySettings } from "@/lib/accesabilityStorage";
+import {
+  getChatSessionState,
+  setChatSessionState,
+} from "@/lib/chatSessionStore";
 
 interface Message {
   id: number;
@@ -19,6 +23,15 @@ interface AssistantProps {
   sendButtonClass?: string;
   welcomeMessage?: string;
 }
+
+const starterPrompts = [
+  "What is the Geneva Window, and why was it never installed in Geneva?",
+  "Can you walk me through the top right panel?",
+  "Which stories and writers are represented across the eight panels?",
+];
+
+const disclaimerText =
+  "This is an AI-powered proof-of-concept experience developed by The Wolfsonian–FIU and FIU undergrad students that responds exclusively using museum-approved researched information about Harry Clarke's Geneva Window.";
 
 interface SpeechRecognitionAlternative {
   transcript: string;
@@ -47,7 +60,7 @@ interface SpeechRecognitionInstance {
 }
 
 interface SpeechRecognitionConstructor {
-  new(): SpeechRecognitionInstance;
+  new (): SpeechRecognitionInstance;
 }
 
 declare global {
@@ -64,13 +77,17 @@ export default function ChatUI({
   sendButtonClass = "bg-white/80 text-black",
   welcomeMessage,
 }: AssistantProps) {
-  /**
- * Loads saved accessibility settings when the component mounts.
- * Updates text size and letter spacing from stored user preferences
- * so the UI stays consistent across sessions.
- */
+  const defaultWelcome =
+    "Welcome to the Harry Clarke Art Assistant at The Wolfsonian–FIU. I can help you explore the Geneva Window, its panels, and the literary works represented in it.";
+  const initialMessage: Message = {
+    id: 1,
+    text: welcomeMessage ?? defaultWelcome,
+    sender: "assistant",
+  };
+  const storedSession = getChatSessionState();
   const [textSize, setTextSize] = useState(16);
   const [spacing, setSpacing] = useState(0);
+
   useEffect(() => {
     const settings = getAccessibilitySettings();
     if (settings) {
@@ -78,20 +95,26 @@ export default function ChatUI({
       setSpacing(settings.letterSpacing);
     }
   }, []);
-  const [messages, setMessages] = useState<Message[]>([]);
+
+  const [messages, setMessages] = useState<Message[]>(
+    storedSession?.messages.length ? storedSession.messages : [initialMessage]
+  );
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState("");
-  const [lastUsedRag, setLastUsedRag] = useState<boolean | null>(null);
+  const [lastUsedRag, setLastUsedRag] = useState<boolean | null>(
+    storedSession?.lastUsedRag ?? null
+  );
   const endRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
-  const idCounter = useRef(0);
+  const idCounter = useRef(
+    storedSession?.messages.at(-1)?.id ?? initialMessage.id
+  );
   const finalTranscriptRef = useRef("");
   const messagesRef = useRef<Message[]>([]);
-  // Added ref for auto growing textarea
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const nextId = () => {
@@ -100,16 +123,15 @@ export default function ChatUI({
   };
 
   useEffect(() => {
-    if (messages.length === 0) {
-      const defaultWelcome = "Welcome to the Harry Clarke Art Assistant at The Wolfsonian–FIU. I can help you explore the art and legacy of Harry Clarke—a artist known for richly detailed stained glass.";
-      const welcomeText = welcomeMessage ?? defaultWelcome;
-      setMessages([{ id: nextId(), text: welcomeText, sender: "assistant" }]);
-    }
-  }, [welcomeMessage]);
-
-  useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
+
+  useEffect(() => {
+    setChatSessionState({
+      messages,
+      lastUsedRag,
+    });
+  }, [messages, lastUsedRag]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -123,7 +145,6 @@ export default function ChatUI({
     };
   }, []);
 
-  // Auto resize textarea when input changes
   useEffect(() => {
     const textarea = textareaRef.current;
     if (textarea) {
@@ -209,6 +230,13 @@ export default function ChatUI({
   };
 
   const handleSend = () => sendMessage(input, messagesRef.current);
+  const hasUserMessages = messages.some((message) => message.sender === "user");
+  const pineconeStatusLabel =
+    lastUsedRag === null
+      ? "Pinecone status: awaiting first response"
+      : lastUsedRag
+        ? "Pinecone status: context pulled from database"
+        : "Pinecone status: reply generated without database context";
 
   const handleSpeechToggle = () => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
@@ -294,15 +322,11 @@ export default function ChatUI({
   return (
     <div className="flex h-full w-full flex-col">
       <div className="flex flex-1 flex-col space-y-2 overflow-y-auto p-4">
-        {lastUsedRag !== null && (
-          <div className="flex justify-center">
-            <div className="rounded-full border border-white/15 bg-black/35 px-3 py-1 text-xs text-white/80 backdrop-blur-md">
-              {lastUsedRag
-                ? "Using Pinecone context"
-                : "Replying without Pinecone context"}
-            </div>
+        <div className="flex justify-center">
+          <div className="rounded-full border border-white/15 bg-black/35 px-3 py-1 text-xs text-white/80 backdrop-blur-md">
+            {pineconeStatusLabel}
           </div>
-        )}
+        </div>
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -315,10 +339,8 @@ export default function ChatUI({
                 </span>
               )}
 
-              {/* Added break words whitespace pre wrap to prevent text overflow */}
               <div
-                className={`rounded-xl px-4 py-3 shadow-md backdrop-blur-md break-words whitespace-pre-wrap ${msg.sender === "user" ? userBubbleClass : assistantBubbleClass
-                  }`}
+                className={`rounded-xl px-4 py-3 shadow-md backdrop-blur-md break-words whitespace-pre-wrap ${msg.sender === "user" ? userBubbleClass : assistantBubbleClass}`}
                 style={{
                   fontSize: `${textSize}px`,
                   letterSpacing: `${spacing}px`,
@@ -335,6 +357,28 @@ export default function ChatUI({
             </div>
           </div>
         ))}
+
+        {!hasUserMessages && !isLoading && !isListening && (
+          <div className="flex justify-start">
+            <div className="max-w-[80%] rounded-2xl border border-white/10 bg-white/8 p-3 backdrop-blur-md">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/65">
+                Try asking
+              </div>
+              <div className="flex flex-col gap-2">
+                {starterPrompts.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => void sendMessage(prompt, messagesRef.current)}
+                    className="rounded-xl border border-white/15 bg-black/25 px-4 py-3 text-left text-sm text-white/90 transition hover:bg-black/35 hover:border-white/25"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {isListening && (
           <div className="flex justify-end">
@@ -369,9 +413,8 @@ export default function ChatUI({
         <div ref={endRef} />
       </div>
 
-      <div className="p-2">
+      <div className="px-4 pt-2 pb-4">
         <div className="relative flex items-center">
-          {/* Replaced input with auto growing textarea */}
           <textarea
             ref={textareaRef}
             value={input}
@@ -390,10 +433,7 @@ export default function ChatUI({
           />
           <button
             onClick={handleSpeechToggle}
-            className={`absolute right-24 rounded-full p-2 transition-all ${isSpeechEnabled
-              ? "bg-black text-white hover:bg-black/90"
-              : "hover:bg-black/10"
-              }`}
+            className={`absolute right-24 rounded-full p-2 transition-all ${isSpeechEnabled ? "bg-black text-white hover:bg-black/90" : "hover:bg-black/10"}`}
             title={
               isSpeechEnabled
                 ? isSpeaking
@@ -407,10 +447,7 @@ export default function ChatUI({
           <button
             onClick={handleMicClick}
             disabled={isLoading}
-            className={`absolute right-12 rounded-full p-2 transition-all disabled:opacity-40 ${isListening
-              ? "scale-110 animate-pulse bg-red-500 text-white"
-              : "hover:bg-black/10"
-              }`}
+            className={`absolute right-12 rounded-full p-2 transition-all disabled:opacity-40 ${isListening ? "scale-110 animate-pulse bg-red-500 text-white" : "hover:bg-black/10"}`}
             title={isListening ? "Tap to stop" : "Tap to speak"}
           >
             {isListening ? <FaStop /> : <FaMicrophone />}
@@ -423,8 +460,8 @@ export default function ChatUI({
             <IoSend />
           </button>
         </div>
-        <p className="mt-2 text-center text-xs text-white/60">
-          AI responses may be inaccurate.
+        <p className="mt-2 px-1 text-center text-[11px] leading-4 text-white/65">
+          {disclaimerText}
         </p>
       </div>
     </div>

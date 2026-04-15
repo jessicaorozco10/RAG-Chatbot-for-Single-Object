@@ -11,8 +11,12 @@ type StoredData = {
   expiresAt: number;
 };
 
+const hasLocalStorage = () => typeof window !== "undefined" && "localStorage" in window;
+
 // save setting with 1 day expiry
 export function setAccessibilitySettings(value: AccessibilitySettings) {
+  if (!hasLocalStorage()) return;
+
   const data: StoredData = {
     value,
     expiresAt: Date.now() + EXPIRY_MS,
@@ -23,6 +27,8 @@ export function setAccessibilitySettings(value: AccessibilitySettings) {
 
 // load setting checks expiry
 export function getAccessibilitySettings(): AccessibilitySettings | null {
+  if (!hasLocalStorage()) return null;
+
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return null;
 
@@ -44,5 +50,7 @@ export function getAccessibilitySettings(): AccessibilitySettings | null {
 
 // reset setting optional use later
 export function resetAccessibilitySettings() {
+  if (!hasLocalStorage()) return;
+
   localStorage.removeItem(STORAGE_KEY);
 } 
